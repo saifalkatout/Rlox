@@ -6,7 +6,7 @@ use std::{
 };
 
 pub fn grow_capacity(cap: usize) -> usize {
-    if cap == 8 {
+    if cap == 0 {
         8
     } else {
         cap * 2
@@ -29,9 +29,11 @@ pub fn free_array(T: &str, pointer: *mut c_void, oldSize: usize) {
 fn reallocate(T: &str, pointer: *mut c_void, _oldSize: usize, newSize: usize) -> *mut c_void {
     if newSize == 0 {
         unsafe {
-            drop_in_place(pointer);
+
+            drop_in_place((pointer));
+
             match T {
-                "u8" => dealloc(pointer as *mut u8, Layout::new::<u8>()),
+                "u8" => dealloc(pointer as *mut u8, Layout::new::<u8>()), //causing double free
                 "u16" => dealloc(pointer as *mut u8, Layout::new::<u16>()),
                 "u32" => dealloc(pointer as *mut u8, Layout::new::<u32>()),
                 "u64" => dealloc(pointer as *mut u8, Layout::new::<u64>()),
@@ -41,7 +43,7 @@ fn reallocate(T: &str, pointer: *mut c_void, _oldSize: usize, newSize: usize) ->
         return null_mut();
     }
     let _lo = Layout::from_size_align(newSize, 8); //no need for layout in libc
-    let result: *mut c_void = unsafe { realloc(pointer, newSize) }; //What about not using libc ?? I feel like I'm only translating...
+    let result: *mut c_void = unsafe { realloc(pointer, newSize) }; //What about not using libc ?? I feel like I'm only translating... (urns out it doesn't make a difference both are challenging/ this is creating a seg fault)
     if result == null_mut() {
         std::process::exit(1);
     } //here used rust exit instead of C exit (how do they differ ??)

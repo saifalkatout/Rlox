@@ -3,6 +3,7 @@ use std::{self, os::raw::c_void};
 use crate::memory::{free_array, grow_array, grow_capacity};
 pub enum OpCode {
     OpReturn,
+    OpSaif,
 }
 
 pub struct Chunk {
@@ -11,12 +12,18 @@ pub struct Chunk {
     capacity: usize,
 }
 
+impl Chunk {
+    pub fn getCode(&self) -> *mut u8 {
+        self.code
+    }
+}
+
 impl Default for Chunk {
     fn default() -> Self {
         Self {
-            code: Vec::new().as_mut_ptr(),
+            code: Vec::with_capacity(8).as_mut_ptr(), //Using Vac::new here is not suggested, as we need to allocate first then reallocate, check with darwish on this
             count: 0,
-            capacity: 0,
+            capacity: 8,
         }
     }
 }
@@ -27,6 +34,7 @@ pub fn CreateChunk(c: &mut Chunk) {
 }
 
 pub fn WriteToChunk(c: &mut Chunk, byte: u8) {
+    
     if c.capacity < c.count + 1 {
         let oldCapacity = c.capacity;
         c.capacity = grow_capacity(oldCapacity);
@@ -39,6 +47,7 @@ pub fn WriteToChunk(c: &mut Chunk, byte: u8) {
 }
 
 pub fn freeChunk(c: &mut Chunk) {
+    
     free_array("u8", c.code as *mut c_void, c.capacity);
-    *c = Chunk::default(); //Creating SegFaults
+    *c = Chunk::default(); 
 }

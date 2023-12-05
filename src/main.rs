@@ -4,7 +4,7 @@ mod memory;
 use std::env;
 
 
-use crate::chunk::OpCode::OpReturn;
+use crate::chunk::OpCode::{OpReturn,OpSaif};
 use chunk::freeChunk;
 use chunk::Chunk;
 
@@ -15,6 +15,7 @@ fn main() {
     // let argv = &args[2];
 
     let mut chunk = Chunk::default();
-    WriteToChunk(&mut chunk, OpReturn as u8);
-    //freeChunk(&mut chunk); //what is mutable borrowing ?
+    WriteToChunk(&mut chunk, OpSaif as u8);
+
+    freeChunk(&mut chunk); //what is mutable borrowing ?
 }
