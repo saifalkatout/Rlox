@@ -15,7 +15,7 @@ pub fn grow_array(T: &str, pointer: *mut c_void, oldSize: u128, newSize: u128) -
 
     match T {
         "u8" => reallocate(T, pointer, oldSize, newSize),
-        "u16" => reallocate(T, pointer, 2 * (oldSize), 2 * (newSize)),
+        "i256" => reallocate(T, pointer, 16 * (oldSize), 16  * (newSize)),
         "u32" => reallocate(T, pointer, 4 * (oldSize), 4 * (newSize)),
         "u64" => reallocate(T, pointer, 8 * (oldSize), 8 * (newSize)),
         _ => panic!("Type not found"),
@@ -32,8 +32,9 @@ fn reallocate(T: &str, pointer: *mut c_void, _oldSize: u128, newSize: u128) -> *
 
         unsafe {
             drop_in_place(pointer);
+
             match T {
-                "u8" => dealloc(pointer as *mut u8, Layout::new::<u8>()), //causing double free
+                "u8" => dealloc(pointer as *mut u8, Layout::new::<u8>()), //causing double free, because vector mut ptr CANNOT BE DEALLOCED
                 _ => panic!("Type not found"),
             }
         }; //Very risky, now is working but super ugly/slow

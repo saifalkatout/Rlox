@@ -2,10 +2,12 @@ mod chunk;
 mod common;
 mod memory;
 mod debug;
+mod value;
 use std::env;
 
 
-use crate::chunk::OpCode::{OpReturn,OpSaif};
+use crate::chunk::OpCode::{OpReturn,OpConstant};
+use chunk::addConstant;
 use chunk::freeChunk;
 use chunk::Chunk;
 
@@ -18,11 +20,17 @@ fn main() {
 
     let mut chunk = Chunk::default();
 
-    WriteToChunk(&mut chunk, OpSaif as u8);
-    WriteToChunk(&mut chunk, OpSaif as u8);
+    let constant1 = addConstant(&mut chunk, 1.111);
+    let constant2 = addConstant(&mut chunk, 3.145);
+    WriteToChunk( OpConstant as u8, 123, &mut chunk);
+    WriteToChunk( constant1 as u8, 123, &mut chunk);
+    WriteToChunk( OpConstant as u8, 123, &mut chunk);
+    WriteToChunk( constant2 as u8, 123, &mut chunk);
+    WriteToChunk( OpReturn as u8, 0124, &mut chunk);
+
     disassembleChunk(&mut chunk, "saif chunk");
 
 
-    freeChunk(&mut chunk); //what is mutable borrowing ?
+    //freeChunk(&mut chunk); //what is mutable borrowing ?
 
 }
